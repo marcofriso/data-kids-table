@@ -1,4 +1,5 @@
-import React from "react";
+import React, { Fragment } from "react";
+import { v4 as uuid } from "uuid";
 
 const Table = ({ tableData, name }) => {
   const headerGroups = Object.keys(tableData[0].data);
@@ -10,21 +11,27 @@ const Table = ({ tableData, name }) => {
         <thead>
           <tr>
             {headerGroups.map((headerGroup) => (
-              <th>{headerGroup}</th>
+              <th key={uuid()}>{headerGroup}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {tableData.map((row) => (
-            <tr>
-              {headerGroups.map((val) => (
-                <td>{row.data[val]}</td>
-              ))}
+            <Fragment key={uuid()}>
+              <tr>
+                {headerGroups.map((val) => (
+                  <td key={uuid()}>{row.data[val]}</td>
+                ))}
+              </tr>
               {Object.keys(row.kids) &&
                 Object.keys(row.kids).map((val) => (
-                  <Table tableData={row.kids[val].records} name={val} />
+                  <tr key={uuid()}>
+                    <td colSpan={headerGroups.length}>
+                      <Table tableData={row.kids[val].records} name={val} />
+                    </td>
+                  </tr>
                 ))}
-            </tr>
+            </Fragment>
           ))}
         </tbody>
       </table>
