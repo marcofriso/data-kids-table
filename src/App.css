@@ -40,3 +40,8 @@ table {
     transform: rotate(360deg);
   }
 }
+
+.accordion-button {
+  width: 35px;
+  color: green;
+}
