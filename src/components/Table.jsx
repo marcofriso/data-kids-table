@@ -1,13 +1,26 @@
-import React, { useState, Fragment } from "react";
+import React, { Fragment, useState, useEffect } from "react";
 import { v4 as uuid } from "uuid";
+import get from "lodash.get";
+import set from "lodash.set";
 
 const Table = ({
+  localTableData,
   tableData,
+  setTableData,
   name,
   openKidsGroupUUIDs,
   setOpenKidsGroupUUIDs,
+  baseDataArray = undefined,
+  version = 0,
 }) => {
-  const headerGroups = Object.keys(tableData[0].data);
+  // eslint-disable-next-line no-unused-vars
+  const [_, setLocalVersion] = useState(0);
+
+  useEffect(() => {
+    setLocalVersion(version);
+  }, [version]);
+
+  const headerGroups = Object.keys(localTableData[0].data);
 
   const toggleAccordion = (kidsGroupUUID) => {
     if (openKidsGroupUUIDs.includes(kidsGroupUUID)) {
@@ -15,11 +28,22 @@ const Table = ({
         openKidsGroupUUIDs.filter((uuid) => uuid !== kidsGroupUUID)
       );
     } else {
-      // console.log(1, [...openKidsGroupUUIDs, kidsGroupUUID]);
-      // console.log(2, [...openKidsGroupUUIDs]);
-      // console.log(3, kidsGroupUUID);
       setOpenKidsGroupUUIDs([...openKidsGroupUUIDs, kidsGroupUUID]);
     }
+  };
+
+  const deleteKey = (key, value) => {
+    const dataKeys = baseDataArray;
+
+    let tableDataKeyToBeModified = localTableData.filter(
+      (row) => get(row, ["data", key]) !== value
+    );
+
+    const modifiedTable = baseDataArray
+      ? set(tableData, dataKeys, tableDataKeyToBeModified)
+      : tableDataKeyToBeModified;
+
+    setTableData(modifiedTable);
   };
 
   return (
@@ -34,12 +58,13 @@ const Table = ({
                 {headerGroup}
               </th>
             ))}
+            <th scope="col" className="accordion-button" />
           </tr>
         </thead>
         <tbody>
-          {tableData.map((row) => (
+          {localTableData.map((row, index) => (
             <Fragment key={uuid()}>
-              {Object.keys(row.kids).length ? (
+              {get(row, ["kids", Object.keys(row.kids)[0], "records", [0]]) ? (
                 (() => {
                   const kidsGroupUUID = `${headerGroups[0]}-${
                     row.data[headerGroups[0]]
@@ -65,6 +90,17 @@ const Table = ({
                         {headerGroups.map((val) => (
                           <td key={uuid()}>{row.data[val]}</td>
                         ))}
+                        <td
+                          className="accordion-button"
+                          onClick={() =>
+                            deleteKey(
+                              Object.keys(row.data)[0],
+                              row.data[Object.keys(row.data)[0]]
+                            )
+                          }
+                        >
+                          <i className={"fa fa-times"} />
+                        </td>
                       </tr>
                       {openAccordion &&
                         Object.keys(row.kids).map((val) => (
@@ -76,10 +112,24 @@ const Table = ({
                           >
                             <td colSpan={headerGroups.length}>
                               <Table
-                                tableData={row.kids[val].records}
+                                tableData={tableData}
+                                setTableData={setTableData}
+                                localTableData={row.kids[val].records}
                                 name={val}
                                 openKidsGroupUUIDs={openKidsGroupUUIDs}
                                 setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
+                                baseDataArray={
+                                  baseDataArray
+                                    ? [
+                                        ...baseDataArray,
+                                        index.toString(),
+                                        "kids",
+                                        val,
+                                        "records",
+                                      ]
+                                    : [index.toString(), "kids", val, "records"]
+                                }
+                                version={version}
                               />
                             </td>
                           </tr>
@@ -93,6 +143,17 @@ const Table = ({
                   {headerGroups.map((val) => (
                     <td key={uuid()}>{row.data[val]}</td>
                   ))}
+                  <td
+                    className="accordion-button"
+                    onClick={() =>
+                      deleteKey(
+                        Object.keys(row.data)[0],
+                        row.data[Object.keys(row.data)[0]]
+                      )
+                    }
+                  >
+                    <i className={"fa fa-times"} />
+                  </td>
                 </tr>
               )}
             </Fragment>

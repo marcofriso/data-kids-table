@@ -2,17 +2,28 @@ import React, { useState } from "react";
 import "./App.css";
 import Table from "./components/Table";
 import tableData from "./data/example-data.json";
+import { Root } from "./types/app";
 
 const App = () => {
-  const [openKidsGroupUUIDs, setOpenKidsGroupUUIDs] = useState([]);
+  const [openKidsGroupUUIDs, setOpenKidsGroupUUIDs] = useState<string[]>([]);
+  const [data, setData] = useState<Root>(tableData);
+  const [version, setVersion] = useState<number>(0);
+
+  const setData2 = (data: Root) => {
+    setData(data);
+    setVersion(version + 1);
+  };
 
   return (
     <div className="App">
       <Table
-        tableData={tableData}
+        localTableData={data}
+        tableData={data}
+        setTableData={setData2}
         name="Data Table"
         openKidsGroupUUIDs={openKidsGroupUUIDs}
         setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
+        version={version}
       />
     </div>
   );
