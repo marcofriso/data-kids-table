@@ -22,6 +22,9 @@ const Table = ({
 
   const headerGroups = Object.keys(localTableData[0].data);
 
+  const hasKidsRecords = (row) =>
+    !!get(row, ["kids", Object.keys(row.kids)[0], "records", [0]]);
+
   const toggleAccordion = (kidsGroupUUID) => {
     if (openKidsGroupUUIDs.includes(kidsGroupUUID)) {
       setOpenKidsGroupUUIDs(
@@ -46,6 +49,68 @@ const Table = ({
     setTableData(modifiedTable);
   };
 
+  const deleteRow = (row) => {
+    deleteKey(Object.keys(row.data)[0], row.data[Object.keys(row.data)[0]]);
+  };
+
+  const TableRowWithKidsRecords = ({ row, index }) => {
+    const kidsGroupUUID = `${headerGroups[0]}-${row.data[headerGroups[0]]}`;
+    const openAccordion = openKidsGroupUUIDs.includes(kidsGroupUUID);
+
+    return (
+      <>
+        <tr>
+          <td
+            className="accordion-button"
+            onClick={() => toggleAccordion(kidsGroupUUID)}
+          >
+            <i
+              className={
+                openAccordion ? "fa fa-chevron-down" : "fa fa-chevron-right"
+              }
+            />
+          </td>
+          {headerGroups.map((val) => (
+            <td key={uuid()}>{row.data[val]}</td>
+          ))}
+          <td className="accordion-button" onClick={() => deleteRow(row)}>
+            <i className={"fa fa-times"} />
+          </td>
+        </tr>
+        {openAccordion &&
+          Object.keys(row.kids).map((val) => (
+            <tr
+              key={uuid()}
+              display={openAccordion ? "table-row" : "display-none"}
+            >
+              <td colSpan={headerGroups.length}>
+                <Table
+                  tableData={tableData}
+                  setTableData={setTableData}
+                  localTableData={row.kids[val].records}
+                  name={val}
+                  openKidsGroupUUIDs={openKidsGroupUUIDs}
+                  setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
+                  baseDataArray={
+                    baseDataArray
+                      ? [
+                          ...baseDataArray,
+                          index.toString(),
+                          "kids",
+                          val,
+                          "records",
+                        ]
+                      : [index.toString(), "kids", val, "records"]
+                  }
+                  version={version}
+                />
+              </td>
+            </tr>
+          ))}
+      </>
+    );
+  };
+
   return (
     <>
       <p className="fw-bold">{name.toUpperCase()}</p>
@@ -64,79 +129,8 @@ const Table = ({
         <tbody>
           {localTableData.map((row, index) => (
             <Fragment key={uuid()}>
-              {get(row, ["kids", Object.keys(row.kids)[0], "records", [0]]) ? (
-                (() => {
-                  const kidsGroupUUID = `${headerGroups[0]}-${
-                    row.data[headerGroups[0]]
-                  }`;
-                  const openAccordion =
-                    openKidsGroupUUIDs.includes(kidsGroupUUID);
-
-                  return (
-                    <>
-                      <tr>
-                        <td
-                          className="accordion-button"
-                          onClick={() => toggleAccordion(kidsGroupUUID)}
-                        >
-                          <i
-                            className={
-                              openAccordion
-                                ? "fa fa-chevron-down"
-                                : "fa fa-chevron-right"
-                            }
-                          />
-                        </td>
-                        {headerGroups.map((val) => (
-                          <td key={uuid()}>{row.data[val]}</td>
-                        ))}
-                        <td
-                          className="accordion-button"
-                          onClick={() =>
-                            deleteKey(
-                              Object.keys(row.data)[0],
-                              row.data[Object.keys(row.data)[0]]
-                            )
-                          }
-                        >
-                          <i className={"fa fa-times"} />
-                        </td>
-                      </tr>
-                      {openAccordion &&
-                        Object.keys(row.kids).map((val) => (
-                          <tr
-                            key={uuid()}
-                            display={
-                              openAccordion ? "table-row" : "display-none"
-                            }
-                          >
-                            <td colSpan={headerGroups.length}>
-                              <Table
-                                tableData={tableData}
-                                setTableData={setTableData}
-                                localTableData={row.kids[val].records}
-                                name={val}
-                                openKidsGroupUUIDs={openKidsGroupUUIDs}
-                                setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
-                                baseDataArray={
-                                  baseDataArray
-                                    ? [
-                                        ...baseDataArray,
-                                        index.toString(),
-                                        "kids",
-                                        val,
-                                        "records",
-                                      ]
-                                    : [index.toString(), "kids", val, "records"]
-                                }
-                                version={version}
-                              />
-                            </td>
-                          </tr>
-                        ))}
-                    </>
-                  );
-                })()
+              {hasKidsRecords(row) ? (
+                <TableRowWithKidsRecords row={row} index={index} />
               ) : (
                 <tr>
                   <td className="accordion-button" />
@@ -145,12 +139,7 @@ const Table = ({
                   ))}
                   <td
                     className="accordion-button"
-                    onClick={() =>
-                      deleteKey(
-                        Object.keys(row.data)[0],
-                        row.data[Object.keys(row.data)[0]]
-                      )
-                    }
+                    onClick={() => deleteRow(row)}
                   >
                     <i className={"fa fa-times"} />
                   </td>

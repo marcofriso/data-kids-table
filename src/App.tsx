@@ -9,7 +9,7 @@ const App = () => {
   const [data, setData] = useState<Root>(tableData);
   const [version, setVersion] = useState<number>(0);
 
-  const setData2 = (data: Root) => {
+  const setTableData = (data: Root) => {
     setData(data);
     setVersion(version + 1);
   };
@@ -19,7 +19,7 @@ const App = () => {
       <Table
         localTableData={data}
         tableData={data}
-        setTableData={setData2}
+        setTableData={setTableData}
         name="Data Table"
         openKidsGroupUUIDs={openKidsGroupUUIDs}
         setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
