@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import "./App.css";
 import Table from "./components/Table";
 import tableData from "./data/example-data.json";
-import { Root } from "./types/app";
+import { RootTable } from "./types/app";
 
 const App = () => {
   const [openKidsGroupUUIDs, setOpenKidsGroupUUIDs] = useState<string[]>([]);
-  const [data, setData] = useState<Root>(tableData);
+  const [data, setData] = useState<RootTable>(tableData);
   const [version, setVersion] = useState<number>(0);
 
-  const setTableData = (data: Root) => {
+  const setTableData = (data: RootTable) => {
     setData(data);
     setVersion(version + 1);
   };

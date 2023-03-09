@@ -27,4 +27,3 @@ interface TableRow {
 Use the attached data.json and create the hierarchy table application (similar to the screenshot). Implement data and view layers, which are clearly separated. For each row, provide a remove button, which deletes an item in the data and view layer in your application. If an item has child items, they have to be deleted as well. When you click on an item, direct child items are hidden/shown.
 The only tech stack requirement that we have is to use React or Vue. The choice of state management library, UI styling
 solution and everything else is up to you.
-

@@ -1,6 +1,6 @@
-export type Root = TableRow[];
+export type RootTable = TableRow[];
 
-interface TableRow {
+export interface TableRow {
   data: Record<string, string>;
   kids: Record<string, Records> | {};
 }

@@ -1,7 +1,9 @@
-import React, { Fragment, useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { v4 as uuid } from "uuid";
 import get from "lodash.get";
 import set from "lodash.set";
+import { TableRow } from "../types/app";
+import { TableProps, TableRowWithKidsRecordsProps } from "../types/table";
 
 const Table = ({
   localTableData,
@@ -13,8 +15,8 @@ const Table = ({
   parentGroupUUID = undefined,
   baseDataArray = undefined,
   version = 0,
-}) => {
-  // eslint-disable-next-line no-unused-vars
+}: TableProps) => {
+  // eslint-disable-next-line
   const [_, setLocalVersion] = useState(0);
 
   useEffect(() => {
@@ -23,21 +25,22 @@ const Table = ({
 
   const headerGroups = Object.keys(localTableData[0].data);
 
-  const hasKidsRecords = (row) =>
-    !!get(row, ["kids", Object.keys(row.kids)[0], "records", [0]]);
+  const hasKidsRecords = (row: TableRow) =>
+    !!get(row, ["kids", Object.keys(row.kids)[0], "records", 0]);
 
-  const toggleAccordion = (kidsGroupUUID) => {
+  const toggleAccordion = (kidsGroupUUID: string) => {
     if (openKidsGroupUUIDs.includes(kidsGroupUUID)) {
       setOpenKidsGroupUUIDs(
-        openKidsGroupUUIDs.filter((uuid) => uuid !== kidsGroupUUID)
+        openKidsGroupUUIDs.filter((uuid: string) => uuid !== kidsGroupUUID)
       );
     } else {
       setOpenKidsGroupUUIDs([...openKidsGroupUUIDs, kidsGroupUUID]);
     }
   };
 
-  const deleteKey = (key, value) => {
-    const dataKeys = baseDataArray;
+  const deleteKey = (key: string, value: string) => {
+    console.log("EXT", baseDataArray);
+    const dataKeys = baseDataArray ? baseDataArray : "";
 
     let tableDataKeyToBeModified = localTableData.filter(
       (row) => get(row, ["data", key]) !== value
@@ -50,11 +53,14 @@ const Table = ({
     setTableData(modifiedTable);
   };
 
-  const deleteRow = (row) => {
+  const deleteRow = (row: TableRow) => {
     deleteKey(Object.keys(row.data)[0], row.data[Object.keys(row.data)[0]]);
   };
 
-  const TableRowWithKidsRecords = ({ row, index }) => {
+  const TableRowWithKidsRecords = ({
+    row,
+    index,
+  }: TableRowWithKidsRecordsProps) => {
     const kidsGroupKey = `${headerGroups[0]}-${row.data[headerGroups[0]]}`;
     const kidsGroupUUID = parentGroupUUID
       ? `${parentGroupUUID}/${kidsGroupKey}`
@@ -84,15 +90,12 @@ const Table = ({
         </tr>
         {openAccordion &&
           Object.keys(row.kids).map((val) => (
-            <tr
-              key={uuid()}
-              display={openAccordion ? "table-row" : "display-none"}
-            >
+            <tr key={uuid()}>
               <td colSpan={headerGroups.length}>
                 <Table
                   tableData={tableData}
                   setTableData={setTableData}
-                  localTableData={row.kids[val].records}
+                  localTableData={get(row, ["kids", val, "records"])}
                   name={val}
                   openKidsGroupUUIDs={openKidsGroupUUIDs}
                   setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
