@@ -39,7 +39,6 @@ const Table = ({
   };
 
   const deleteKey = (key: string, value: string) => {
-    console.log("EXT", baseDataArray);
     const dataKeys = baseDataArray ? baseDataArray : "";
 
     let tableDataKeyToBeModified = localTableData.filter(
