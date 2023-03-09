@@ -10,6 +10,7 @@ const Table = ({
   name,
   openKidsGroupUUIDs,
   setOpenKidsGroupUUIDs,
+  parentGroupUUID = undefined,
   baseDataArray = undefined,
   version = 0,
 }) => {
@@ -54,7 +55,11 @@ const Table = ({
   };
 
   const TableRowWithKidsRecords = ({ row, index }) => {
-    const kidsGroupUUID = `${headerGroups[0]}-${row.data[headerGroups[0]]}`;
+    const kidsGroupKey = `${headerGroups[0]}-${row.data[headerGroups[0]]}`;
+    const kidsGroupUUID = parentGroupUUID
+      ? `${parentGroupUUID}/${kidsGroupKey}`
+      : kidsGroupKey;
+
     const openAccordion = openKidsGroupUUIDs.includes(kidsGroupUUID);
 
     return (
@@ -91,6 +96,7 @@ const Table = ({
                   name={val}
                   openKidsGroupUUIDs={openKidsGroupUUIDs}
                   setOpenKidsGroupUUIDs={setOpenKidsGroupUUIDs}
+                  parentGroupUUID={kidsGroupUUID}
                   baseDataArray={
                     baseDataArray
                       ? [
